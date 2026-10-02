@@ -76,7 +76,7 @@ with col_right:
     )
     if katanga_only:
         targets = targets[targets['ADM1'] == 'Katanga'].reset_index(drop=True)
-    st.dataframe(targets, use_container_width=True)
+    st.dataframe(targets, width='stretch')
     st.download_button(
         "Download targets (CSV)",
         targets.to_csv(index=False).encode('utf-8'),
