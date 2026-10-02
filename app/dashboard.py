@@ -30,6 +30,10 @@ metals = st.sidebar.multiselect(
     default=['copper_mine','gold_mine','zinc_mine','nickel_mine']
 )
 
+if not metals:
+    st.warning("Select at least one metal to run the model.")
+    st.stop()
+
 # Model
 drc2 = drc.copy()
 scaler = StandardScaler()
