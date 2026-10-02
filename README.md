@@ -1,6 +1,8 @@
 # copperbelt-geoai
 Geochemical anomaly detection for Cu-Co exploration - DRC Copperbelt
 
+**Live demo:** https://copperbelt-geoai-avgvbkz44uxsgggqpign4p.streamlit.app/
+
 ## Overview
 Isolation Forest anomaly detection over DRC mining districts (copper, gold, zinc, nickel
 mine counts), surfaced in an interactive Streamlit dashboard.
