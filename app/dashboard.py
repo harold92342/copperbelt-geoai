@@ -2,11 +2,13 @@ import streamlit as st
 import pandas as pd
 import os
 import numpy as np
-from sklearn.ensemble import IsolationForest
-from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 import folium
 from streamlit_folium import st_folium
+import sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from src.model import detect_anomalies, METALS
+
 st.set_page_config(page_title="Copperbelt GeoAI", page_icon="⛏️", layout="wide")
 
 st.title("Copperbelt GeoAI — DRC Exploration Dashboard")
@@ -26,8 +28,8 @@ st.sidebar.header("Model settings")
 contamination = st.sidebar.slider("Anomaly sensitivity", 0.05, 0.30, 0.10)
 metals = st.sidebar.multiselect(
     "Metals to analyze",
-    ['copper_mine','gold_mine','zinc_mine','nickel_mine'],
-    default=['copper_mine','gold_mine','zinc_mine','nickel_mine']
+    METALS,
+    default=METALS
 )
 
 if not metals:
@@ -35,12 +37,7 @@ if not metals:
     st.stop()
 
 # Model
-drc2 = drc.copy()
-scaler = StandardScaler()
-scaled = scaler.fit_transform(drc2[metals].fillna(0))
-model = IsolationForest(contamination=contamination, random_state=42)
-drc2['anomaly'] = model.fit_predict(scaled)
-drc2['label'] = drc2['anomaly'].apply(lambda x: 'Target' if x == -1 else 'Background')
+drc2 = detect_anomalies(drc, metals, contamination)
 
 anomalies = drc2[drc2['label'] == 'Target']
 
