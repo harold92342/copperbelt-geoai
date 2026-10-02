@@ -32,6 +32,8 @@ metals = st.sidebar.multiselect(
     default=METALS
 )
 
+katanga_only = st.sidebar.checkbox("Show Katanga targets only", value=False)
+
 if not metals:
     st.warning("Select at least one metal to run the model.")
     st.stop()
@@ -67,9 +69,17 @@ with col_left:
 
 with col_right:
     st.subheader("Top exploration targets")
-    st.dataframe(
+    targets = (
         anomalies[['ADM1','ADM2','copper_mine','gold_mine','label']]
         .sort_values('copper_mine', ascending=False)
-        .reset_index(drop=True),
-        use_container_width=True
+        .reset_index(drop=True)
+    )
+    if katanga_only:
+        targets = targets[targets['ADM1'] == 'Katanga'].reset_index(drop=True)
+    st.dataframe(targets, use_container_width=True)
+    st.download_button(
+        "Download targets (CSV)",
+        targets.to_csv(index=False).encode('utf-8'),
+        file_name="copperbelt_targets.csv",
+        mime="text/csv",
     )
