@@ -16,3 +16,6 @@ mine counts), surfaced in an interactive Streamlit dashboard.
 pip install -r requirements.txt
 streamlit run app/dashboard.py
 ```
+
+## Preview
+![Dashboard preview](docs/dashboard_preview.png)
