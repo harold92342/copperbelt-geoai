@@ -2,11 +2,13 @@ import streamlit as st
 import pandas as pd
 import os
 import numpy as np
-from sklearn.ensemble import IsolationForest
-from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 import folium
 from streamlit_folium import st_folium
+import sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from src.model import detect_anomalies, METALS
+
 st.set_page_config(page_title="Copperbelt GeoAI", page_icon="⛏️", layout="wide")
 
 st.title("Copperbelt GeoAI — DRC Exploration Dashboard")
@@ -26,17 +28,18 @@ st.sidebar.header("Model settings")
 contamination = st.sidebar.slider("Anomaly sensitivity", 0.05, 0.30, 0.10)
 metals = st.sidebar.multiselect(
     "Metals to analyze",
-    ['copper_mine','gold_mine','zinc_mine','nickel_mine'],
-    default=['copper_mine','gold_mine','zinc_mine','nickel_mine']
+    METALS,
+    default=METALS
 )
 
+katanga_only = st.sidebar.checkbox("Show Katanga targets only", value=False)
+
+if not metals:
+    st.warning("Select at least one metal to run the model.")
+    st.stop()
+
 # Model
-drc2 = drc.copy()
-scaler = StandardScaler()
-scaled = scaler.fit_transform(drc2[metals].fillna(0))
-model = IsolationForest(contamination=contamination, random_state=42)
-drc2['anomaly'] = model.fit_predict(scaled)
-drc2['label'] = drc2['anomaly'].apply(lambda x: 'Target' if x == -1 else 'Background')
+drc2 = detect_anomalies(drc, metals, contamination)
 
 anomalies = drc2[drc2['label'] == 'Target']
 
@@ -66,9 +69,17 @@ with col_left:
 
 with col_right:
     st.subheader("Top exploration targets")
-    st.dataframe(
+    targets = (
         anomalies[['ADM1','ADM2','copper_mine','gold_mine','label']]
         .sort_values('copper_mine', ascending=False)
-        .reset_index(drop=True),
-        use_container_width=True
+        .reset_index(drop=True)
+    )
+    if katanga_only:
+        targets = targets[targets['ADM1'] == 'Katanga'].reset_index(drop=True)
+    st.dataframe(targets, width='stretch')
+    st.download_button(
+        "Download targets (CSV)",
+        targets.to_csv(index=False).encode('utf-8'),
+        file_name="copperbelt_targets.csv",
+        mime="text/csv",
     )
