@@ -78,5 +78,5 @@ streamlit run app/dashboard.py
 
 ## 👤 Auteur / Author
 
-**Timothée Kabwe Zumbi** — Project & Data Professional, PMP®
+**Timothée Kabwe** — Project & Data Professional, PMP®
 [LinkedIn](https://www.linkedin.com/in/timkabwe/) · [Portfolio](https://harold92342.github.io/TimPortfolio) · Licence MIT / MIT License
